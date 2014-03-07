@@ -56,7 +56,7 @@ static const Layout layouts[] = {
 };
 
 /* key definitions */
-#define MODKEY Mod4Mask
+#define MODKEY Mod1Mask
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -68,7 +68,7 @@ static const Layout layouts[] = {
 
 /* commands */
 static const char *dmenucmd[] = { "dmenu_run", "-fn", font, "-nb", colors[0][ColBG], "-nf", colors[1][ColFG],"-sb", colors[0][ColBG], "-sf", colors[8][ColFG], NULL };
-static const char *termcmd[]  = { "sakura", "-c", "90", "-r", "30", NULL };
+static const char *termcmd[]  = { "uxterm", NULL };
 static const char *stcmd[]    = { "st", NULL };
 static const char *wwwcmd[]   = { "firefox", NULL };
 static const char *mutecmd[]  = { "amixer", "set", "Master", "toggle", NULL };
@@ -115,7 +115,7 @@ static Key keys[] = {
 	TAGKEYS(                        XK_7,                      6)
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
-	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+	{ MODKEY|ControlMask,             XK_q,      quit,           {0} },
 	/* custom */
 	{ MODKEY,                       XK_grave,  spawn,          {.v = stcmd } },
 	{ False,                        XF86XK_HomePage,           spawn,          {.v = wwwcmd } },
