@@ -1,14 +1,22 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
+#define NUMCOLORS 9
+static const char colors[NUMCOLORS][ColLast][9] = {
+	/*  border   foreground  background  */
+	{ "#202020", "#a9a9a9", "#333333" },  /* x01 = darkgray  */
+	{ "#a9a9a9", "#d3d3d3", "#333333" },  /* x02 = lightgray */
+	{ "#202020", "#ff8c00", "#333333" },  /* x03 = orange    */
+	{ "#202020", "#ff0000", "#333333" },  /* x04 = red       */
+	{ "#202020", "#4cbb17", "#333333" },  /* x05 = green     */
+	{ "#202020", "#f4ca16", "#333333" },  /* x06 = yellow    */
+	{ "#202020", "#318ce7", "#333333" },  /* x07 = blue      */
+	{ "#202020", "#cc00cc", "#333333" },  /* x08 = magenta   */
+	{ "#202020", "#00b7eb", "#333333" },  /* x09 = cyan      */
+};
 static const char font[]            = "-*-terminus-medium-r-*-*-16-*-*-*-*-*-*-*";
-static const char normbordercolor[] = "#444444";
-static const char normbgcolor[]     = "#222222";
-static const char normfgcolor[]     = "#bbbbbb";
-static const char selbordercolor[]  = "#005577";
-static const char selbgcolor[]      = "#005577";
-static const char selfgcolor[]      = "#eeeeee";
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
+static const unsigned int gappx     = 6;        /* gap pixel between windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const Bool showbar           = True;     /* False means no bar */
 static const Bool topbar            = True;     /* False means bottom bar */
@@ -50,7 +58,7 @@ static const Layout layouts[] = {
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *dmenucmd[] = { "dmenu_run", "-fn", font, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
++static const char *dmenucmd[] = { "dmenu_run", "-fn", font, "-nb", colors[0][ColBG], "-nf", colors[0][ColFG],"-sb", colors[1][ColBG], "-sf", colors[8][ColFG], NULL };
 static const char *termcmd[]  = { "uxterm", NULL };
 
 static Key keys[] = {
