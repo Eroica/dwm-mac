@@ -1,15 +1,8 @@
 Requirements
 ------------
 * Xlib header files
-* ohsnap font
+* artwiz cure font
 
-Instructions
-------------
-
-    git clone https://github.com/KieranQuinn/dwm.git
-    cd dwm && sudo make clean install
-    
-    
 Patches/Features
 ----------------
 * statuscolors
@@ -39,5 +32,3 @@ To do
     
 Screenshot
 ----------
-
-![Screenshot](screenshot.png "my dwm")
