@@ -82,7 +82,7 @@ static const char *vold[] = { "amixer", "-q", "set", "PCM", "5%-", "unmute", NUL
 
 static Key keys[] = {
     { MODKEY,           XK_p,       spawn,          {.v = menu } },
-    { MODKEY,           XK_t,  runorraise,     {.v = term } },
+    { MODKEY,           XK_n,  runorraise,     {.v = term } },
     { MONKEY,           XK_e,       runorraise,     {.v = edit } },
     { MONKEY,           XK_m,       runorraise,     {.v = mdia } },
     { MONKEY,           XK_f,       runorraise,     {.v = file } },
