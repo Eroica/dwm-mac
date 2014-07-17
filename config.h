@@ -2,10 +2,10 @@
 #define MODKEY          Mod2Mask
 #define MONKEY          Mod4Mask
 #define TAGKEYS(KEY,TAG) \
-    { MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
-    { MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-    { MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
-    { MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
+    { MODKEY,                       KEY,      toggleview,           {.ui = 1 << TAG} }, \
+    { MODKEY|ControlMask,           KEY,      view,     {.ui = 1 << TAG} }, \
+    { MODKEY|ShiftMask,             KEY,      toggletag,            {.ui = 1 << TAG} }, \
+    { MODKEY|ControlMask|ShiftMask, KEY,      tag,      {.ui = 1 << TAG} },
     
 static const unsigned int tagspacing = 3;       /* space between tags */
 static const unsigned int tagpadding = 25;      /* inner padding of tags */
