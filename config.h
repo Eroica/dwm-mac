@@ -57,20 +57,16 @@ static const Tag tags[] = {
 
 static const Rule rules[] = {
     /* class                instance    title       tags mask       isfloating      iscentred       monitor */
-    { "Google-chrome",      NULL,       NULL,       1 << 0,         False,          False,          -1 },
-    { "Skype",              NULL,       NULL,       1 << 1,         False,          False,          -1 },
-    { "URxvt",              NULL,       NULL,       1 << 0,         True,           True,          -1 },
-    { "Geany",              NULL,       NULL,       1 << 3,         False,          False,          -1 },
-    { "uxterm",             NULL,       NULL,       1 << 2,         True,           True,           -1 },
+    { "Google-chrome",      NULL,       NULL,       1 << 1,         False,          False,          -1 },
+    { "URxvt",              NULL,       NULL,       1 << 3,         True,           True,          -1 },
+    { "xterm",             NULL,       NULL,       1 << 2,         True,           True,           -1 },
 };
 
 static const char *menu[] = { "dmenu_run", "-i", "-fn", font, "-nb", colors[0][ColBG], "-nf", colors[0][ColFG], "-sb", colors[1][ColBG], "-sf", colors[9][ColFG], NULL };
 static const char *webb[] = { "google-chrome", NULL, "Google-chrome" };
-static const char *chat[] = { "skype", NULL, "Skype" };
 static const char *term[] = { "uxterm", NULL };
-static const char *edit[] = { "geany", NULL, "Geany" };
-static const char *mdia[] = { "vlc", NULL, "Vlc" };
-static const char *file[] = { "pcmanfm", NULL, "Pcmanfm" };
+static const char *edit[] = { "xterm vim", NULL, "vim" };
+static const char *file[] = { "xterm ranger", NULL, "ranger" };
 static const char *prts[] = { "scrot", NULL };
 static const char *play[] = { "ncmpcpp", "toggle" };
 static const char *stop[] = { "ncmpcpp", "stop" };
@@ -83,9 +79,8 @@ static const char *vold[] = { "amixer", "-q", "set", "PCM", "5%-", "unmute", NUL
 static Key keys[] = {
     { MODKEY,           XK_p,       spawn,          {.v = menu } },
     { MODKEY,           XK_n,  runorraise,     {.v = term } },
-    { MONKEY,           XK_e,       runorraise,     {.v = edit } },
-    { MONKEY,           XK_m,       runorraise,     {.v = mdia } },
-    { MONKEY,           XK_f,       runorraise,     {.v = file } },
+    { MONKEY,           XK_v,       runorraise,     {.v = edit } },
+    { MONKEY,           XK_e,       runorraise,     {.v = file } },
     { MONKEY,           XK_Print,   spawn,          {.v = prts } },
     { MONKEY,           XK_F5,      spawn,          {.v = play } },
     { MONKEY,           XK_F6,      spawn,          {.v = stop } },
