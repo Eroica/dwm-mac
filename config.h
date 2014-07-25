@@ -2,9 +2,9 @@
 #define MODKEY          Mod2Mask
 #define MONKEY          Mod4Mask
 #define TAGKEYS(KEY,TAG) \
-    { MODKEY,                       KEY,      toggleview,           {.ui = 1 << TAG} }, \
+    { MODKEY,                       KEY,      toggletag,           {.ui = 1 << TAG} }, \
     { MODKEY|ControlMask,           KEY,      view,     {.ui = 1 << TAG} }, \
-    { MODKEY|ShiftMask,             KEY,      toggletag,            {.ui = 1 << TAG} }, \
+    { MODKEY|ShiftMask,             KEY,      toggleview,            {.ui = 1 << TAG} }, \
     { MODKEY|ControlMask|ShiftMask, KEY,      tag,      {.ui = 1 << TAG} },
     
 static const unsigned int tagspacing = 3;       /* space between tags */
@@ -49,10 +49,10 @@ static const Layout layouts[] = {
 
 static const Tag tags[] = {
     /* name     layout          mfact   nmaster */
-    { "\x9a",    &layouts[0],    -1,     -1 },
+    { "\x9a",    &layouts[3],    -1,     -1 },
     { "\x91",   &layouts[2],    -1,     -1 },
     { "\x89",   &layouts[0],    -1,     -1 },
-    { "\x8a",   &layouts[3],    -1,     -1 },
+    { "\x8a",   &layouts[1],    -1,     -1 },
 };
 
 static const Rule rules[] = {
@@ -126,8 +126,8 @@ static Key keys[] = {
 
 static Button buttons[] = {
     { ClkLtSymbol,      0,          Button1,        setlayout,      {0} },
-    { ClkClientWin,     MODKEY,     Button2,        movemouse,      {0} },
-    { ClkClientWin,     MODKEY,     Button1,        togglefloating, {0} },
+    { ClkClientWin,     MODKEY,     Button1,        movemouse,      {0} },
+    { ClkClientWin,     MODKEY,     Button2,        togglefloating, {0} },
     { ClkClientWin,     MODKEY,     Button3,        resizemouse,    {0} },
     { ClkTagBar,        0,          Button1,        view,           {0} },
     { ClkTagBar,        0,          Button3,        toggleview,     {0} },
