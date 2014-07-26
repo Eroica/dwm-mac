@@ -8,7 +8,7 @@ The following fixes were made to make it more usable on MacBooks, iMacs, etc.:
     * This means that Apple's `Option` key can still be used to enter special characters such as `@`, `~`, etc.
 * A configurable bottom margin if a bottom dock is present (the margin can be defined in `dwm.c` under `BOTTOM_BAR_HEIGHT`).
 * A more sensible approach to tagging and switching layouts, with consideration that no system shortcuts are being overwritten.
-    * For instance, in vanilla dwm, tag spaces are changed using `Alt+Shift+[Number]). However, if `Alt` is being replaced by `Cmd`, `Cmd+Shift+3` or `Cmd+Shift+4` would take a screenshot instead.
+    * For instance, in vanilla dwm, tag spaces are changed using `Alt+Shift+[Number]`). However, if `Alt` is being replaced by `Cmd`, `Cmd+Shift+3` or `Cmd+Shift+4` would take a screenshot instead.
 
 **dwm-mac** uses the following keyboard shortcuts:
 
