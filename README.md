@@ -12,6 +12,16 @@ The following fixes were made to make it more usable on MacBooks, iMacs, etc.:
 
 **dwm-mac** uses the following keyboard shortcuts:
 
+| Shortcut   | Function      | Changed?  |
+|:---------- |:-------------:| -----:|
+| Cmd+W      | Kill client   | Yes |
+| Cmd+Shift+W      | Quit Xquartz      |   Yes |
+| Cmd+H/L | Increase/decrease master window      |    No |
+| Cmd+J/K      | Change focus      |   No |
+| Cmd+[Number]      | Tag window with tag [Number]      |   Yes |
+| Cmd+Ctrl+[Number]      | Change tag space to [number]      |   Yes |
+| tbc. | | |
+
 
 The following patches were applied in the original repository:
 
