@@ -6,7 +6,7 @@
     { MODKEY|ControlMask,           KEY,      view,     {.ui = 1 << TAG} }, \
     { MODKEY|ShiftMask,             KEY,      toggletag,            {.ui = 1 << TAG} }, \
     { MODKEY|ControlMask|ShiftMask, KEY,      tag,      {.ui = 1 << TAG} },
-    
+
 static const unsigned int tagspacing = 3;       /* space between tags */
 static const unsigned int tagpadding = 25;      /* inner padding of tags */
 static const unsigned int taglinepx = 2;        /* height of tag underline */
