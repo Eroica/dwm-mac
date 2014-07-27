@@ -24,19 +24,19 @@ static const char font[] = "-artwiz-cure-medium-*-*-*-11-*-*-*-*-*-iso8859-*";
 
 static const char colors[NUMCOLORS][ColLast][13] = {
     /* border    fg         bg */
-    { "#2D2D2D", "#FFFFFF", "#2D2D2D" },        /* 01 - regular */
-    { "#3E6A82", "#FFFFFF", "#2D2D2D" },        /* 02 - selected */
-    { "#2D2D2D", "#FF0000", "#2D2D2D" },        /* 03 - urgent */
-    { "#2D2D2D", "#666666", "#2D2D2D" },        /* 04 - occupied */
-    { "#2D2D2D", "#A82222", "#2D2D2D" },        /* 05 - red */
-    { "#2D2D2D", "#1F7B94", "#2D2D2D" },        /* 06 - blue */
-    { "#2D2D2D", "#349147", "#2D2D2D" },        /* 07 - green */
-    { "#2D2D2D", "#666666", "#2D2D2D" },        /* 08 - dark grey */
-    { "#2D2D2D", "#DCDCDC", "#2D2D2D" },        /* 09 - light grey */
-    { "#2D2D2D", "#D64937", "#2D2D2D" },        /* 0A - orange */
-    { "#2D2D2D", "#B86A6A", "#2D2D2D" },        /* 0B - pink */
-    { "#2D2D2D", "#FFFFFF", "#2D2D2D" },        /* 0C - white */
-    { "#2D2D2D", "#000000", "#2D2D2D" },        /* 0D - black */
+    { "#323246", "#96BEC8", "#323246" },        /* 01 - regular */
+    { "#3C788C", "#FFFFFF", "#323246" },        /* 02 - selected */
+    { "#8C8CA0", "#8C8CA0", "#323246" },        /* 03 - urgent */
+    { "#323246", "#5A7882", "#323246" },        /* 04 - occupied */
+    { "#323256", "#5A7882", "#323246" },        /* 05 - red */
+    { "#323246", "#3C788C", "#323246" },        /* 06 - blue */
+    { "#323246", "#8C8CA0", "#323246" },        /* 07 - green */
+    { "#323246", "#6E8CA0", "#323246" },        /* 08 - dark grey */
+    { "#323246", "#96BEC8", "#323246" },        /* 09 - light grey */
+    { "#323256", "#1E828C", "#323246" },        /* 0A - orange */
+    { "#323246", "#6EA0B4", "#323246" },        /* 0B - pink */
+    { "#323246", "#FFFFFF", "#323246" },        /* 0C - white */
+    { "#323246", "#000000", "#323246" },        /* 0D - black */
 };
 
 static const Layout layouts[] = {
