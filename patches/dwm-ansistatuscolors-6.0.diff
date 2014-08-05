@@ -1,0 +1,510 @@
+--- dwm.c.orig	2011-12-19 09:02:46.000000000 -0600
++++ dwm.c	2012-11-12 23:04:14.383441523 -0600
+@@ -54,6 +54,7 @@
+ #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
+ #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
+ #define TEXTW(X)                (textnw(X, strlen(X)) + dc.font.height)
++#define STATUS_BUF_LEN          8192 //la11111
+ 
+ /* enums */
+ enum { CurNormal, CurResize, CurMove, CurLast };        /* cursor */
+@@ -254,7 +255,7 @@
+ 
+ /* variables */
+ static const char broken[] = "broken";
+-static char stext[256];
++static char stext[STATUS_BUF_LEN]; //la11111
+ static int screen;
+ static int sw, sh;           /* X display screen geometry width, height */
+ static int bh, blw = 0;      /* bar geometry */
+@@ -290,6 +291,24 @@
+ /* compile-time check if all tags fit into an unsigned int bit array. */
+ struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
+ 
++//////////////////////////// la11111
++enum { ansi_reset, ansi_fg, ansi_bg, ansi_text, ansi_last};
++
++struct ansi_node {
++    int type;
++    char * color;
++    char * text; 
++    struct ansi_node *next;
++};
++
++static void drawcoloredtext(const char *text, unsigned long fg, unsigned long bg);
++static void ParseAnsiEsc(char * seq, char buffer[]);
++static void GetAnsiColor(int escapecode, char buffer[]);
++static int countchars(char c, char * buf);
++static struct ansi_node * addnode(struct ansi_node *head, int type, char * color, char * text);
++static void destroy_llist(struct ansi_node *head);
++static void drawstatus(Monitor *m);
++///////////////////////////////
+ /* function implementations */
+ void
+ applyrules(Client *c) {
+@@ -741,13 +760,8 @@
+ 	dc.x += dc.w;
+ 	x = dc.x;
+ 	if(m == selmon) { /* status is only drawn on selected monitor */
+-		dc.w = TEXTW(stext);
+-		dc.x = m->ww - dc.w;
+-		if(dc.x < x) {
+-			dc.x = x;
+-			dc.w = m->ww - x;
+-		}
+-		drawtext(stext, dc.norm, False);
++
++       drawstatus(m); //la11111
+ 	}
+ 	else
+ 		dc.x = m->ww;
+@@ -2144,3 +2158,449 @@
+ 	XCloseDisplay(dpy);
+ 	return EXIT_SUCCESS;
+ }
++
++
++/*************************************************
++ansistatuscolors
++by la11111
++
++updated 11.12.12 - squashed my code together to 
++patch better across versions - killed remaining memory
++leaks. removed some useless junk.
++
++put ansi escape codes in your status bar output to 
++change the color. Note: full ansi spec not implemented
++at the moment. incorrect codes are ignored, even if they
++may be valid ansi codes (ie, changing up the order or something)
++
++*** escape code format:
++
++\e[<code>m
++
++    \e - ascii 27, hex 0x1b, octal 033
++    [ - literal bracket
++    m - literal 'm'
++
++*** codes supported:
++
++standard escape codes:
++
++n;m
++    n - 
++        0 - normal
++        1 - 'bright'
++    m -
++        30-37 - text foreground
++        40-47 - text background
++
++0 - 
++    reset formatting to default
++
++example (python):
++    print "\x1b[1;31mHello World!\x1b[0m"
++
++256-color escape codes (xterm):
++
++n;5;m
++    n -
++        38 - text foreground
++        48 - text background
++    m - 
++        0-15 - alias classic ansi colors
++        16-231 - rgb grid color
++        232-255 - grayscale ramp color
++
++example (python):
++    print "\x1b[38;5;196mHello World!\x1b[0m"
++
++for more info about escape sequences in general, see:
++http://www.frexx.de/xterm-256-notes/
++
++enjoy, my friends
++-la0x1f
++***************************************************/
++
++void
++drawcoloredtext(const char *text, unsigned long fg, unsigned long bg) {
++	char buf[256];
++	int x, y, h, olen, len;
++
++	XSetForeground(dpy, dc.gc, bg);
++
++	XFillRectangle(dpy, dc.drawable, dc.gc, dc.x, dc.y, dc.w, dc.h);
++	if(!text)
++		return;
++	olen = strlen(text);
++	h = dc.font.ascent + dc.font.descent;
++	y = dc.y + (dc.h / 2) - (h / 2) + dc.font.ascent;
++	x = dc.x; 
++	for(len = MIN(olen, sizeof buf); len && textnw(text, len) > dc.w; len--);
++	if(!len)
++		return;
++	memcpy(buf, text, len);
++    
++	XSetForeground(dpy, dc.gc, fg);
++	if(dc.font.set)
++		XmbDrawString(dpy, dc.drawable, dc.font.set, dc.gc, x, y, buf, len);
++	else
++		XDrawString(dpy, dc.drawable, dc.gc, x, y, buf, len);
++}
++
++struct 
++ansi_node * addnode(struct ansi_node *head, int type, char * color, char * text) {
++    struct ansi_node* tmp;
++    if (head == NULL) {
++        head=(struct ansi_node *)malloc(sizeof(struct ansi_node));
++        if (head == NULL) {
++        //    printf("you're out of memory, son\n");
++            exit(1);
++        }
++        head->next = head;
++        head->type = type;
++        head->color = color;
++        head->text = text; 
++    } else {
++        tmp = head;
++        while(tmp->next != head) 
++            tmp = tmp->next;
++        tmp->next = (struct ansi_node *)malloc(sizeof(struct ansi_node));
++        if (tmp->next == NULL) {
++         //   printf("you're out of memory, son\n");
++            exit(1);
++        }
++        tmp = tmp->next;
++        tmp->next = head;
++        tmp->type = type;
++        tmp->color = color;
++        tmp->text = text; 
++    }
++    return head;
++}
++
++void 
++destroy_llist(struct ansi_node *head) {
++    struct ansi_node *current, *tmp;
++    current = head->next;
++    head->next = NULL;
++    while (current != NULL) {
++        tmp = current->next;
++        free(current);
++        current = tmp;
++    }
++}
++
++void 
++drawstatus (Monitor *m) {
++    /*
++       this function makes 2 passes:
++        -chops status text into pieces based on esc codes
++        -puts esc codes & text blocks in a linked list
++        -goes back through and outputs those blocks one at a time
++            in the color specified by the preceding escape code 
++    */
++    char * startpos = stext;
++    char * curpos = stext;
++    char * escstartpos = stext;
++    int inescape = 0;
++    int esc_len, text_len;
++    char * textbuf;
++    char * escbuf;
++    char plaintextbuf[1024] = "\0";
++    char color[16];
++    char * color_ptr;
++    int curpos_ctr = 0;
++    int input_len = strlen(stext);
++    int plain_text_len = 0;
++    unsigned long cur_fg = dc.norm[ColFG];
++    unsigned long cur_bg = dc.norm[ColBG];
++    struct ansi_node *head = NULL;
++    int x, x_orig;
++    struct ansi_node *curn;
++
++
++    while (curpos_ctr < input_len) {
++        if (*curpos == '\x1b') {
++            if (!(inescape)) {
++                inescape = 1;
++                escstartpos = curpos;
++                curpos++;
++                curpos_ctr++;
++                if (*curpos != '[') {
++                    escstartpos = startpos;
++                    inescape = 0;
++                } else {
++                    curpos++;
++                    curpos_ctr++;
++                }
++            } else {
++                escstartpos = startpos;
++                inescape = 0;
++            }
++        } else {
++            if (inescape) {
++                if ( ((*curpos >= '0' ) && (*curpos <= '9')) || (*curpos == ';') ) {
++                    curpos++;
++                    curpos_ctr++;
++                } else { 
++                    if (*curpos == 'm') {
++                        esc_len = curpos - escstartpos;
++                        escbuf = malloc(esc_len-1);
++                        if (escbuf) { strncpy(escbuf, escstartpos+2, esc_len-2);  }
++                        escbuf[esc_len-2] = '\0';
++                        ParseAnsiEsc(escbuf, color);
++                        free(escbuf);
++                        text_len= escstartpos - startpos;
++                        if (text_len > 0) { 
++                            plain_text_len += text_len;
++                            textbuf = malloc((text_len * sizeof(char))+ 1);
++                            if (textbuf) { strncpy(textbuf, startpos, text_len);}
++                            textbuf[text_len] = '\0';
++                            strcat(plaintextbuf, textbuf);
++                            head = addnode(head, ansi_text, "", strcpy(malloc(strlen(textbuf)+1), textbuf));
++                            free(textbuf);
++                        }
++                        color_ptr = color;
++                        if (color[0] == 'r') { 
++                            head = addnode(head, ansi_reset, strcpy( malloc(strlen(color)+1), color), ""); 
++                        } else if (color[0] == 'f') { //chops off 'fg:'
++                            head = addnode(head, ansi_fg, strcpy( malloc(strlen(color)-2), color_ptr+3),""); 
++                        } else if (color[0] == 'b') {
++                            head = addnode(head, ansi_bg, strcpy(malloc(strlen(color)-2),color_ptr+3), ""); 
++                        } else {
++                            head = addnode(head, -1, "", "");
++                        }
++                        curpos++;
++                        startpos = curpos;
++                        escstartpos = curpos;
++                    } else {
++                        escstartpos = startpos;
++                        curpos++;
++                        curpos_ctr++;
++                    }
++                    inescape = 0; 
++                }
++            } else {
++                curpos++;
++                curpos_ctr++;
++            }
++        }
++    }
++    if(strlen(startpos)) {
++        text_len= strlen(startpos);
++        textbuf = malloc((text_len * sizeof(char))+ 1);
++        if (textbuf) { strncpy(textbuf, startpos, text_len);}
++        textbuf[text_len] = '\0';
++        plain_text_len += strlen(startpos);
++        strcat(plaintextbuf, startpos);
++        head = addnode(head, ansi_text, "", strcpy(malloc(strlen(textbuf)+1), textbuf));
++        free(textbuf);
++    } 
++    x = dc.x;
++    dc.x = m->ww - textnw(plaintextbuf, strlen(plaintextbuf));
++    // not sure what would happen here... something wierd probably
++    if(dc.x < x) {
++        dc.x = x;
++        dc.w = m->ww - x;
++    }
++    x_orig = dc.x; //reset dc.x after so the window title doesn't overwrite status
++    curn = head; //iterate linked list
++    if (curn != NULL) {
++        do {
++            if (curn->type == -1) continue;
++            if (curn->type == ansi_reset) { 
++                cur_fg = dc.norm[ColFG];
++                cur_bg = dc.norm[ColBG]; 
++                free(curn->color);
++            } else if (curn->type == ansi_fg) {
++                cur_fg = getcolor(curn->color);
++                free(curn->color);
++            } else if (curn->type == ansi_bg) {
++                cur_bg = getcolor(curn->color);
++                free(curn->color);
++            } else if (curn->type == ansi_text) {
++                dc.w = textnw(curn->text, strlen(curn->text));
++                drawcoloredtext(curn->text, cur_fg, cur_bg);
++                dc.x += dc.w;
++            
++                free(curn->text);
++
++
++
++            } else {
++                continue;
++            }    
++            curn = curn->next;
++        } while (curn != head);
++    }
++    dc.x = x_orig;
++    destroy_llist(head);
++}
++
++int //count occurrences of c in buf 
++countchars(char c, char * buf) {
++    char *ptr = buf;
++    int ctr = 0;
++    while(*ptr) {
++        if(*ptr == c) ctr++;
++        ptr++;
++    }
++    return ctr;
++}
++
++void 
++ParseAnsiEsc(char * seq, char buffer[]){
++    char *cp, *token;
++    static char * standardcolors[2][8] = {
++        {"#000000\0","#800000\0","#008000\0","#808000\0","#000080\0","#800080\0","#008080\0","#c0c0c0\0"},
++        {"#808080\0","#ff0000\0","#00ff00\0","#ffff00\0","#0000ff\0","#ff00ff\0","#00ffff\0","#ffffff\0"}
++    };
++    char * retbuf = (void *)buffer;
++    retbuf[0] = '\0';
++
++    cp = malloc(strlen(seq) + 1);
++    if (cp) { strcpy(cp, seq); }
++
++    int semis = countchars(';',seq);
++    char *delim = ";";
++    char * toklist[semis + 1];
++    int tok_ctr = 0;
++    int arglist[semis + 1];
++    char color[8];
++    int r,c,i,j;
++    char * layer;
++
++    token = strtok(cp,delim);
++    while(token) {
++        toklist[tok_ctr] = token;
++        tok_ctr++;
++        token = strtok(NULL,delim);
++    } 
++    if ((tok_ctr > 3) || (tok_ctr < 1)) {
++        free(cp);
++         return;
++    }
++    if (tok_ctr == 1) { 
++        if (strlen(toklist[0]) != 1) return;
++        if (toklist[0][0] != '0') {
++            free(cp);
++            return;
++        } else {
++            sprintf(retbuf,"r"); //reset to default
++            free(cp);
++            return;
++        }
++    }
++    for (i=0; i < tok_ctr; i++) {
++        for(j=0; j < strlen(toklist[i]); j++){
++            if ((toklist[i][j] < '0') || (toklist[i][j] > '9')) {
++                free(cp);
++                return;
++            }
++        }
++        arglist[i] = atoi(toklist[i]);
++    }
++    if (tok_ctr == 3) {
++        if (!(
++            (arglist[1] == 5) && 
++            ((arglist[0] == 38) || (arglist[0] == 48)) && 
++            (arglist[2] >= 16) && 
++            (arglist[2] <= 255)
++        )) {
++            free(cp);
++            return;
++        } else {
++            if (arglist[0] == 38) {
++                sprintf(retbuf,"fg:");
++            } else {
++                sprintf(retbuf,"bg:");
++            }
++           
++            GetAnsiColor(arglist[2], color);
++            strcat(retbuf, color);
++            free(cp);
++            return;
++         }
++    } else {
++        for (i = 0; i < tok_ctr; i++) {
++            if (!(
++                (arglist[i] == 0) ||
++                (arglist[i] == 1) ||
++                ((arglist[i] >= 30) && (arglist[i] <= 37)) ||
++                ((arglist[i] >= 40) && (arglist[i] <= 47))
++            )) {
++                free(cp);
++                return;
++            }
++        } 
++        if ((arglist[0] < 30) 
++        && (arglist[1] < 30)) {
++            free(cp);
++            return;
++        }
++        if ((arglist[0] > 1) 
++        && (arglist[1] > 1)) {
++            free(cp);
++            return;  
++        }
++        if (arglist[0] < 30) {
++            r = arglist[0];
++            c = arglist[1];
++        } else {
++            r = arglist[1];
++            c = arglist[0];
++        }
++        if (c > 37) {
++            layer = "bg:";
++            c -= 10;
++        } else {
++            layer = "fg:";
++        }
++        sprintf(retbuf, "%s%s", layer, standardcolors[r][c-30]);
++        free(cp);
++    } 
++}
++
++void 
++GetAnsiColor(int escapecode, char buffer[]){
++    char steps[6][3] = {
++        "00\0", "5f\0", "87\0", "af\0", "d6\0", "ff\0",
++    };
++    int i, panel, cell, col, row, val;
++    int cmin = 16;
++    int cmax = 231;
++    int gmax = 255;
++    int n = escapecode;
++    char * retbuf = (void *)buffer;
++
++    if (n < cmin) {
++        return;
++    } else if (n > gmax) {
++        return;
++    } else if (n <= cmax) {
++        i = n - 15;
++        panel = i / 36;
++        cell = i % 36;
++        if (cell == 0) {
++            cell = 36;
++            panel -= 1;
++        }
++        col = cell / 6;
++        row = cell % 6;
++        if (row == 0) {
++            col -= 1;
++            row = 5;
++        } else {
++            row -= 1;
++        }
++        sprintf(retbuf, "#%s%s%s", steps[panel], steps[col], steps[row]);
++    } else {
++        val = ((10*(n-232))+8);
++        sprintf(retbuf, "#%.2x%.2x%.2x",val,val,val);
++    }
++}
++
++/*************************************************
++end ansistatuscolors - la11111
++***************************************************/
++
++
