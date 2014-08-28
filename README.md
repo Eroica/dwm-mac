@@ -1,6 +1,6 @@
 dwm-mac
 =======
-This is a port of [KieranQuinn's dwm](https://github.com/KieranQuinn/dwm) to make it accessible being used in **Xquartz**, Apple's version of the X Server.
+This is a port of `dwm` to make it more accessible being used in **Xquartz**, Apple's version of the X Server.
 
 The following fixes were made to make it more usable on MacBooks, iMacs, etc.:
 
@@ -21,15 +21,6 @@ The following fixes were made to make it more usable on MacBooks, iMacs, etc.:
 | Cmd+[Number]      | Tag window with tag [Number]      |   Yes |
 | Cmd+Ctrl+[Number]      | Change tag space to [number]      |   Yes |
 | tbc. | | |
-
-* * *
-
-The default pertag layouts are:
-
-1. First space, **floating layout**. This is because I often just need a small `xterm` window that should not overlap other Cocoa applications. By pressing `Cmd` and clicking the left mouse button, you can move a floating window around.
-2. **Tiling layout**, `dwm`'s default tiling layout that arranges one big window on one side and several smaller ones on the other side.
-3. **Monocle layout**, useful for fullscreen `vim` or `xterm` windows.
-4. **B-stack layout**: A big window on the upper half and several smaller ones under it.
 
 * * *
 
@@ -58,23 +49,3 @@ If you are new to Xquartz on OS X, here is some additional information to get yo
 * When running `xterm` or other commandline apps, copy text by **pressing and holding** the *right mouse button* to select some text, and **press** the *middle mouse button* once to paste something.
 
 * * *
-
-The following patches were applied in the original repository:
-
-Patches/Features
-----------------
-* statuscolors
-* statusallmons
-* centredfloating
-* savefloats
-* notitle
-* pertag2
-* systray
-* occupiedcol
-* uselessgaps
-* keysymfix
-* bstack
-* runorraise
-
-Screenshot
-----------
