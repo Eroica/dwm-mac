@@ -1,13 +1,3 @@
-Attention
-=========
-I no longer use `dwm` on OS X. In Linus Torvald's words on Tiling WMs: "Been there, done that" or something like that. However, I keep this repository as a reference. May it help other people setting up `dwm` on Xquartz.
-
-It was a rewarding feeling to be able to flee from the UI mess that began to emerge in OS X, but there is a small difference in setting up such a workspace to be productive and in setting it up out of defiance.
-
-I still use OS X---although I would stay away from anything that comes after 10.9 Mavericks---and I still like `dwm`. Fortunately, I found something else that serves my inner developer: Right now I'm quite happy with [Mjolnir](http://mjolnir.io/), a tiling interface on top of OS X's Aqua. The best part is that it is scriptable using *Lua*.
-
-* * *
-
 dwm-mac
 =======
 This is a port of `dwm` to make it more accessible being used in **Xquartz**, Apple's version of the X Window Server.
